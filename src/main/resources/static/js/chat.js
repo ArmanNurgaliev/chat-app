@@ -1,43 +1,67 @@
 let stompClient = null;
 let chatDate = null;
-let recipientName = null;
 let monthNames = ["January", "February", "March", "April", "May", "June",
     "July", "August", "September", "October", "November", "December"
 ];
+
+let recipientName = null;
 let currentUserName = null;
-var availableUsers = null;
 
 
 function getFriends() {
-    let tableData = "";
     $.ajax({
         type: "GET",
-        url: "/get-friends",
+        url: "/get-chats",
         success: function (response) {
-            response.forEach(function (user) {
-                tableData = '<li class="active user-list">' +
-                    '<div class="d-flex bd-highlight">' +
-                    '<div class="img_cont">' +
-                        '<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">' +
-                          /*  '<span class="online_icon"></span>' +*/
-                    '</div>' +
-                    '<div class="user_info">' +
-                        '<span class="username-value">' + user.username + '</span>' +
-                     /*   '<p>' + user.chatMessage.get(room.chatMessage.size-1) + '</p>' +*/
-                    '</div>' +
-                '</div>' +
-                '</li>';
-                $("#contacts").append(tableData);
+            $(".contacts").html('');
+            response.forEach(function (room) {
+                let numOfNewMessages = 0;
+                room.chatMessages.forEach(function (message) {
+                    if (message.senderName !== currentUserName && message.status === 'DELIVERED') {
+                        numOfNewMessages++;
+                    }
+                });
+                showChatRooms(room, numOfNewMessages);
             });
         }
     });
 }
 
+function showChatRooms(room, numOfNewMessages) {
+    let tableData = '';
+    if (numOfNewMessages !== 0) {
+        tableData = '<li class="active user-list">' +
+            '<div class="d-flex bd-highlight">' +
+            '<div class="img_cont">' +
+            '<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">' +
+            '<span class="online_icon"></span>' +
+            '</div>' +
+            '<div class="user_info">' +
+            '<span class="username-value">' + room.sender.username + '</span>' +
+            '<span class="notification" id="notification">' + numOfNewMessages + '</span>' +
+            '</div>' +
+            '</div>' +
+            '</li>';
+    }
+    else {
+        tableData = '<li class="active user-list">' +
+            '<div class="d-flex bd-highlight">' +
+            '<div class="img_cont">' +
+            '<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">' +
+            '<span class="online_icon"></span>' +
+            '</div>' +
+            '<div class="user_info">' +
+            '<span class="username-value">' + room.sender.username + '</span>' +
+            '</div>' +
+            '</div>' +
+            '</li>';
+    }
+    $(".contacts").append(tableData);
+}
 
 function connect() {
     let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
-    console.log("Name in connect: " + currentUserName);
     stompClient.connect({}, function (frame) {
         /*stompClient.subscribe('/topic/return-to', function(data){
             showMessage(JSON.parse(data.body));
@@ -46,8 +70,23 @@ function connect() {
         stompClient.subscribe('/queue/messages/' + currentUserName, function (message) {
             console.log("SUBSCRIBE!!!");
             showMessage(JSON.parse(message.body));
+            getFriends();
         });
     });
+}
+
+function readMessages() {
+    $.ajax({
+        type: "GET",
+        url: "/read-messages",
+        dataType: 'json',
+        data: {"recipientName": recipientName},
+        contentType: 'application/json; charset=utf-8',
+        success: function () {
+            console.log("Messages are read");
+        }
+    });
+    getFriends();
 }
 
 /*function sendMessage() {
@@ -70,7 +109,7 @@ function connect() {
 
 function sendPrivateMessage() {
     let content = $("#content").val();
-    //recipientName = document.getElementById("recipient").innerHTML;
+    recipientName = document.getElementById("chat-with").innerHTML;
     console.log("RecipientName in sendPrivateMessage: " + recipientName);
     $.ajax({
         type: "GET",
@@ -82,6 +121,7 @@ function sendPrivateMessage() {
                 'recipientName': recipientName};
             stompClient.send("/app/private-messages/" + recipientName, {}, JSON.stringify(message));
             showMessage(message);
+            getFriends();
         }
     });
     document.getElementById('content').value = '';
@@ -135,7 +175,7 @@ function showMessagesFromDB(recipientName) {
     document.getElementById("hide").style.visibility = 'visible';
     $("#chat-with").html(recipientName);
     $.ajax({
-        url: '/get-messages',
+        url: '/get-chat',
         type: 'GET',
         dataType: 'json',
         data: {"recipientName": recipientName},
@@ -145,9 +185,8 @@ function showMessagesFromDB(recipientName) {
             $("#messages").html('');
             messages.forEach(function (message) {
                 let time = new Date(message.timestamp);
-             //   showTime(time);
 
-                if (message.recipient.username == recipientName) {
+                if (message.recipientName === recipientName) {
                     showSendMessages(message, time);
                 } else {
                     showRecievedMessages(message, time);
@@ -157,6 +196,7 @@ function showMessagesFromDB(recipientName) {
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
     });
+    readMessages();
 }
 
 function showTime(time) {
@@ -232,6 +272,7 @@ function searchUsers() {
 $(document).ready(function(){
     document.getElementById("hide").style.visibility = 'hidden';
     getCurrentUserName();
+    getFriends();
 
     $("#tags").on('keyup', function() {
         searchUsers();
@@ -246,8 +287,8 @@ $(document).ready(function(){
         return false;
     });
 
-    $(".active").click(function () {
-        recipientName = $(this).find("span").text();
+    $(document).on('click','.active',function () {
+        recipientName = $(this).find(".username-value").text();
         chatDate = null;
         showMessagesFromDB(recipientName);
     });

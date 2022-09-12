@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.arman.chatapp.dto.MessageDto;
 import ru.arman.chatapp.model.ChatMessage;
+import ru.arman.chatapp.model.ChatRoom;
 import ru.arman.chatapp.model.User;
 import ru.arman.chatapp.service.ChatMessageService;
 import ru.arman.chatapp.service.ChatRoomService;
@@ -38,7 +39,7 @@ public class ChatController {
     public void privateMessage(@DestinationVariable String recipientName,
                                MessageDto messageDto) throws InterruptedException {
         log.info("MessageDto in privateMessage: " + messageDto);
-         Thread.sleep(1000);
+     //    Thread.sleep(1000);
         chatMessageService.createMessage(messageDto);
 
         messagingTemplate.convertAndSend("/queue/messages/" + recipientName, messageDto);
@@ -54,15 +55,28 @@ public class ChatController {
         return userService.getUserByUsername(recipientName);
     }
 
+    @GetMapping("/get-chats")
+    public List<ChatRoom> getRooms(@AuthenticationPrincipal User user) {
+        return chatRoomService.getChatRooms(user);
+    }
+
+    @GetMapping("/get-chat")
+    public List<ChatMessage> getRoom(@AuthenticationPrincipal User user,
+                            @RequestParam String recipientName) {
+       // return chatRoomService.getChatRoom(user, userService.getUserByUsername(recipientName));
+
+        return chatMessageService.getChatMessages(user, userService.getUserByUsername(recipientName));
+    }
+
     @GetMapping("/get-friends")
-    public List<User> getRooms(@AuthenticationPrincipal User user) {
+    public List<User> getFriends(@AuthenticationPrincipal User user) {
         return userService.getAllUsers(user);
     }
 
-    @GetMapping("/get-messages")
-    public List<ChatMessage> getRoom(@AuthenticationPrincipal User user,
-                            @RequestParam String recipientName) {
-        return chatMessageService.getChatMessages(user, userService.getUserByUsername(recipientName));
+    @GetMapping("/read-messages")
+    public void readMessages(@AuthenticationPrincipal User user,
+                             @RequestParam String recipientName) {
+        chatMessageService.readMessages(user.getUsername(), recipientName);
     }
 
 }

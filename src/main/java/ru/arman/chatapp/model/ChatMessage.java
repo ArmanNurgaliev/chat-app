@@ -1,5 +1,6 @@
 package ru.arman.chatapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -20,9 +21,12 @@ public class ChatMessage {
             name = "chat_id",
             referencedColumnName = "chat_id")
     @ToString.Exclude
+    @JsonIgnore
     private ChatRoom chatRoom;
+    private String senderName;
+    private String recipientName;
 
-    @ManyToOne(
+/*    @ManyToOne(
             cascade = CascadeType.MERGE
     )
     @JoinColumn(
@@ -40,7 +44,7 @@ public class ChatMessage {
             referencedColumnName = "id"
     )
     @ToString.Exclude
-    private User recipient;
+    private User recipient;*/
 
     private String content;
     private Date timestamp;

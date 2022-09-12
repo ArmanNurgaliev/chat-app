@@ -31,8 +31,12 @@ public class ChatRoom {
             referencedColumnName = "id")
     private User recipient;
 
-  /*  @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ChatMessage> chatMessages;*/
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ChatMessage> chatMessages;
 
     private Date lastUpdate;
+
+    public void addMessage(ChatMessage chatMessage) {
+        this.chatMessages.add(chatMessage);
+    }
 }

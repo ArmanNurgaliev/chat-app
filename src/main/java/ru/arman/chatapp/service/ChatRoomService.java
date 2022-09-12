@@ -33,6 +33,7 @@ public class ChatRoomService {
                     ChatRoom.builder()
                             .sender(sender)
                             .recipient(recipient)
+                            .chatMessages(new ArrayList<>())
                             .lastUpdate(new Date())
                             .build();
 
@@ -40,6 +41,7 @@ public class ChatRoomService {
                     ChatRoom.builder()
                             .sender(recipient)
                             .recipient(sender)
+                            .chatMessages(new ArrayList<>())
                             .lastUpdate(new Date())
                             .build();
 
@@ -50,8 +52,8 @@ public class ChatRoomService {
     }
 
     public List<ChatRoom> getChatRooms(User user) {
-        return chatRoomRepository.findAllBySender(user).stream()
-                .sorted(Comparator.comparing(ChatRoom::getLastUpdate))
+        return chatRoomRepository.findAllByRecipient(user).stream()
+                .sorted(Comparator.comparing(ChatRoom::getLastUpdate).reversed())
                 .collect(Collectors.toList());
     }
 }

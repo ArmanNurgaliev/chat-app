@@ -1,1 +1,4 @@
 # Chat app
+
+- TODO
+  - Notifications

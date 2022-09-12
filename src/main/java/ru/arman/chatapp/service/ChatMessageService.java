@@ -34,21 +34,14 @@ public class ChatMessageService {
         return chatMessageRepository.save(chatMessage);
     }
 
-    public List<ChatMessage> getChatMessages(User sender, User recipient) {
-        return Stream.concat(chatMessageRepository.findAllBySenderAndRecipient(sender, recipient).stream(),
-                chatMessageRepository.findAllBySenderAndRecipient(recipient, sender).stream())
-                .sorted(Comparator.comparing(ChatMessage::getTimestamp))
-                .collect(Collectors.toList());
-    }
-
     public ChatMessage createMessage(MessageDto messageDto) {
         User recipient = userService.getUserByUsername(messageDto.getRecipientName());
         User sender = userService.getUserByUsername(messageDto.getSenderName());
         ChatRoom chatRoom = chatRoomService.getChatRoom(sender, recipient);
 
         ChatMessage chatMessage = ChatMessage.builder()
-                .sender(sender)
-                .recipient(recipient)
+                .senderName(messageDto.getSenderName())
+                .recipientName(messageDto.getRecipientName())
                 .content(messageDto.getContent())
                 .chatRoom(chatRoom)
                 .timestamp(messageDto.getTimestamp())
@@ -56,9 +49,27 @@ public class ChatMessageService {
                 .build();
 
         chatRoom.setLastUpdate(chatMessage.getTimestamp());
-
         chatRoomRepository.save(chatRoom);
 
+     //   chatRoom.addMessage(chatMessage);
+
         return chatMessageRepository.save(chatMessage);
+    }
+
+    public void readMessages(String sender, String recipient) {
+        List<ChatMessage> messages = chatMessageRepository.findAllBySenderNameAndRecipientName(recipient, sender);
+        for (ChatMessage m: messages) {
+            if (m.getStatus() == MessageStatus.DELIVERED) {
+                m.setStatus(MessageStatus.RECEIVED);
+                chatMessageRepository.save(m);
+            }
+        }
+    }
+
+    public List<ChatMessage> getChatMessages(User sender, User recipient) {
+        return Stream.concat(chatMessageRepository.findAllBySenderNameAndRecipientName(sender.getUsername(), recipient.getUsername()).stream(),
+                        chatMessageRepository.findAllBySenderNameAndRecipientName(recipient.getUsername(), sender.getUsername()).stream())
+                .sorted(Comparator.comparing(ChatMessage::getTimestamp))
+                .collect(Collectors.toList());
     }
 }

@@ -126,15 +126,18 @@ body,html{
     border-radius: 50%;
     bottom: 0.2em;
     right: 0.4em;
-    border:1.5px solid white;
+    border: 1.5px solid white;
 }
 .offline{
     background-color: #c23616 !important;
 }
 .user_info{
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: 15px;
+    width: 100%;
+    margin: auto 15px;
+}
+
+.user_info_top {
+    margin: auto 15px;
 }
 .user_info span{
     font-size: 20px;
@@ -144,6 +147,16 @@ body,html{
     font-size: 10px;
     color: rgba(255,255,255,0.6);
 }
+
+.user_info_top span{
+    font-size: 20px;
+    color: white;
+}
+.user_info_top p{
+    font-size: 10px;
+    color: rgba(255,255,255,0.6);
+}
+
 .video_cam{
     margin-left: 50px;
     margin-top: 5px;
@@ -284,4 +297,12 @@ li.ui-state-focus{
 
 .ui-helper-hidden-accessible {
     display: none;
+}
+
+.username-value {
+    float: left;
+}
+
+.notification {
+    float: right;
 }
