@@ -109,22 +109,26 @@ function readMessages() {
 
 function sendPrivateMessage() {
     let content = $("#content").val();
-    recipientName = document.getElementById("chat-with").innerHTML;
-    console.log("RecipientName in sendPrivateMessage: " + recipientName);
-    $.ajax({
-        type: "GET",
-        url: "/get-current-username",
-        success: function (response) {
-            let message = {'content': content,
-                'senderName': response,
-                'timestamp': new Date(),
-                'recipientName': recipientName};
-            stompClient.send("/app/private-messages/" + recipientName, {}, JSON.stringify(message));
-            showMessage(message);
-            getFriends();
-        }
-    });
-    document.getElementById('content').value = '';
+    if (content.trim() !== "") {
+        recipientName = document.getElementById("chat-with").innerHTML;
+        console.log("RecipientName in sendPrivateMessage: " + recipientName);
+        $.ajax({
+            type: "GET",
+            url: "/get-current-username",
+            success: function (response) {
+                let message = {
+                    'content': content,
+                    'senderName': response,
+                    'timestamp': new Date(),
+                    'recipientName': recipientName
+                };
+                stompClient.send("/app/private-messages/" + recipientName, {}, JSON.stringify(message));
+                showMessage(message);
+            }
+        });
+        getFriends();
+        document.getElementById('content').value = '';
+    }
 }
 
 

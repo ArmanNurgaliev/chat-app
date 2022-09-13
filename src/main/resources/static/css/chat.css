@@ -305,4 +305,11 @@ li.ui-state-focus{
 
 .notification {
     float: right;
+    text-align: center;
+
+    min-width: 30px;
+    border-radius: 50%;
+
+    color: black;
+    background-color: gray;
 }

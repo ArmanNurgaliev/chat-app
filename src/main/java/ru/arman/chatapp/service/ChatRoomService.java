@@ -1,6 +1,5 @@
 package ru.arman.chatapp.service;
 
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.arman.chatapp.model.ChatRoom;
@@ -13,7 +12,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class ChatRoomService {
@@ -27,7 +25,7 @@ public class ChatRoomService {
     }
 
     public ChatRoom getChatRoom(User sender, User recipient) {
-        ChatRoom chatRoom = chatRoomRepository.findBySenderAndRecipient(sender, recipient);
+        ChatRoom chatRoom = chatRoomRepository.findBySenderAndRecipient(recipient, sender);
         if (chatRoom == null ) {
             ChatRoom chatRoomSender =
                     ChatRoom.builder()

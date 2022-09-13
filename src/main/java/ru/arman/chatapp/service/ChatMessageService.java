@@ -48,10 +48,8 @@ public class ChatMessageService {
                 .status(MessageStatus.DELIVERED)
                 .build();
 
-        chatRoom.setLastUpdate(chatMessage.getTimestamp());
+        chatRoom.setLastUpdate(messageDto.getTimestamp());
         chatRoomRepository.save(chatRoom);
-
-     //   chatRoom.addMessage(chatMessage);
 
         return chatMessageRepository.save(chatMessage);
     }
