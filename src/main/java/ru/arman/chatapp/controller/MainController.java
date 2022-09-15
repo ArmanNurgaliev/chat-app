@@ -33,6 +33,7 @@ public class MainController {
         List<ChatRoom> chatRooms = chatRoomService.getChatRooms(user);
 
         model.addAttribute("chatRooms", chatRooms);
+        model.addAttribute("user", user);
 
         return "index";
     }

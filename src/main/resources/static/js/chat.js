@@ -7,6 +7,10 @@ let monthNames = ["January", "February", "March", "April", "May", "June",
 let recipientName = null;
 let currentUserName = null;
 
+let trigger = $('.hamburger'),
+    overlay = $('.overlay'),
+    isClosed = false;
+
 
 function getFriends() {
     $.ajax({
@@ -142,7 +146,7 @@ function showMessage(message) {
             if (message.senderName == response) {
                 showSendMessages(message, time);
             } else if (message.senderName == recipientName){
-                showRecievedMessages(message, time);
+                showReceivedMessages(message, time);
             }
             var chatHistory = document.getElementById("messages");
             chatHistory.scrollTop = chatHistory.scrollHeight;
@@ -193,7 +197,7 @@ function showMessagesFromDB(recipientName) {
                 if (message.recipientName === recipientName) {
                     showSendMessages(message, time);
                 } else {
-                    showRecievedMessages(message, time);
+                    showReceivedMessages(message, time);
                 }
             });
             var chatHistory = document.getElementById("messages");
@@ -210,9 +214,12 @@ function showTime(time) {
         if (chatDate != null && time.getFullYear() !== chatDate.getFullYear())
             showDate += (" " + time.getFullYear());
         chatDate = time;
-        let timeBox = '<div style="text-align: center; color: white;">' +
-            showDate +
-        '</div>';
+        let timeBox = '<div class="d-flex justify-content-center-date mb-4">' +
+            '<div class="date-line">' +
+                showDate +
+            '</div>' +
+            '</div>';
+
         $("#messages").append(timeBox);
     }
 }
@@ -221,25 +228,29 @@ function showSendMessages(message, time) {
     showTime(time);
     let minutes = (time.getMinutes() < 10 ? '0' : '') + time.getMinutes();
     let msg = '<div class="d-flex justify-content-end mb-4">' +
-        '<div class="msg_cotainer_send">' +
+        '<div class="msg_container_send">' +
         message.content +
+        '<div>' +
         '<span class="msg_time_send">' +
         time.getHours() + ':' + minutes +
         '</span>' +
+        '</div>' +
         '</div>' +
         '</div>';
     $("#messages").append(msg);
 }
 
-function showRecievedMessages(message, time) {
+function showReceivedMessages(message, time) {
     showTime(time);
     let minutes = (time.getMinutes() < 10 ? '0' : '') + time.getMinutes();
     let msg = '<div class="d-flex justify-content-start mb-4">' +
-        '<div class="msg_cotainer">' +
+        '<div class="msg_container">' +
         message.content +
+        '<div>' +
         '<span class="msg_time">' +
         time.getHours() + ':' + minutes +
         '</span>' +
+        '</div>' +
         '</div>' +
         '</div>';
     $("#messages").append(msg);
@@ -272,6 +283,20 @@ function searchUsers() {
     }
 }
 
+function hamburger_cross() {
+
+    if (isClosed === true) {
+        overlay.hide();
+        trigger.removeClass('is-open');
+        trigger.addClass('is-closed');
+        isClosed = false;
+    } else {
+        overlay.show();
+        trigger.removeClass('is-closed');
+        trigger.addClass('is-open');
+        isClosed = true;
+    }
+}
 
 $(document).ready(function(){
     document.getElementById("hide").style.visibility = 'hidden';
@@ -295,6 +320,14 @@ $(document).ready(function(){
         recipientName = $(this).find(".username-value").text();
         chatDate = null;
         showMessagesFromDB(recipientName);
+    });
+
+    trigger.click(function () {
+        hamburger_cross();
+    });
+
+    $('[data-toggle="offcanvas"]').click(function () {
+        $('#wrapper').toggleClass('toggled');
     });
 });
 

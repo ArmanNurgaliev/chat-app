@@ -9,10 +9,12 @@ body,html{
 .chat{
     margin-top: auto;
     margin-bottom: auto;
+    padding-left: 0;
+    padding-right: 0;
 }
 .card{
-    height: 500px;
-    border-radius: 15px !important;
+    height: 100vh;
+    /*border-radius: 15px !important;*/
     background-color: rgba(0,0,0,0.4) !important;
 }
 .contacts_body{
@@ -44,7 +46,7 @@ body,html{
 }
 .search:focus{
     box-shadow:none !important;
-    outline:0px !important;
+    outline:0 !important;
 }
 .type_msg{
     background-color: rgba(0,0,0,0.3) !important;
@@ -55,7 +57,7 @@ body,html{
 }
 .type_msg:focus{
     box-shadow:none !important;
-    outline:0px !important;
+    outline:0 !important;
 }
 .attach_btn{
     border-radius: 15px 0 0 15px !important;
@@ -167,7 +169,29 @@ body,html{
     cursor: pointer;
     margin-right: 20px;
 }
-.msg_cotainer{
+
+.date-line {
+    text-align: center;
+    color: white;
+}
+
+.justify-content-center-date{
+    justify-content: center!important;
+    width: 100%;
+    float: left;
+}
+
+.justify-content-end{
+    width: 80%;
+    float: right;
+}
+
+.justify-content-start{
+    width: 80%;
+    float: left;
+}
+
+.msg_container{
     margin-top: auto;
     margin-bottom: auto;
     margin-left: 10px;
@@ -175,8 +199,11 @@ body,html{
     background-color: #82ccdd;
     padding: 10px;
     position: relative;
+
+    word-break: break-all;
 }
-.msg_cotainer_send{
+
+.msg_container_send{
     margin-top: auto;
     margin-bottom: auto;
     margin-right: 10px;
@@ -184,6 +211,8 @@ body,html{
     background-color: #78e08f;
     padding: 10px;
     position: relative;
+
+    word-break: break-all;
 }
 .msg_time{
     position: absolute;
@@ -239,11 +268,11 @@ body,html{
     cursor: pointer;
     background-color: rgba(0,0,0,0.2);
 }
-@media(max-width: 576px){
+/*@media(max-width: 576px){
     .contacts_card{
         margin-bottom: 15px !important;
     }
-}
+}*/
 
 /* width */
 ::-webkit-scrollbar {
@@ -312,4 +341,9 @@ li.ui-state-focus{
 
     color: black;
     background-color: gray;
+}
+
+.input-group {
+    margin-left: 60px;
+    width: 80%;
 }

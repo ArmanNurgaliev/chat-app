@@ -11,7 +11,5 @@ import java.util.List;
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     ChatRoom findBySenderAndRecipient(User sender, User recipient);
 
-    List<ChatRoom> findAllBySender(User sender);
-
     List<ChatRoom> findAllByRecipient(User recipient);
 }
