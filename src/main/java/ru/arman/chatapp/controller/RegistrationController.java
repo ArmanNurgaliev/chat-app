@@ -47,9 +47,6 @@ public class RegistrationController {
 
         Map<String, String> errors = new HashMap<>();
         if (!userService.registerUser(userDto, errors)) {
-            if (errors.containsKey("usernameExist"))
-                model.addAttribute("usernameExist",
-                        String.format("An account with username %s already exists", errors.get("usernameExist")));
             if (errors.containsKey("emailExist"))
                 model.addAttribute("emailExist",
                         String.format("An account with email %s already exists", errors.get("emailExist")));
@@ -74,9 +71,9 @@ public class RegistrationController {
             return "change-password";
         }
 
-        User user = userService.getUserByUsername(changePassDto.getUsername());
+        User user = userService.getUserByEmail(changePassDto.getEmail());
         if (user == null) {
-            model.addAttribute("userNotFound", "No user with such username");
+            model.addAttribute("userNotFound", "No user with such email");
             return "change-password";
         }
 

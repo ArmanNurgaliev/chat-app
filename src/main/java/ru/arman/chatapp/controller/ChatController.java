@@ -52,23 +52,24 @@ public class ChatController {
 
     @GetMapping("/get-recipient")
     public User getRecipient(@RequestParam String recipientName) {
-        return userService.getUserByUsername(recipientName);
+        return userService.getUserByFullName(recipientName);
     }
 
     @GetMapping("/get-chats")
     public List<ChatRoom> getRooms(@AuthenticationPrincipal User user) {
-        return chatRoomService.getChatRooms(user);
+        List<ChatRoom> chatRooms = chatRoomService.getChatRooms(user);
+        log.info(String.valueOf(chatRooms));
+        return chatRooms;
     }
 
     @GetMapping("/get-chat")
     public List<ChatMessage> getRoom(@AuthenticationPrincipal User user,
                             @RequestParam String recipientName) {
        // return chatRoomService.getChatRoom(user, userService.getUserByUsername(recipientName));
-
-        return chatMessageService.getChatMessages(user, userService.getUserByUsername(recipientName));
+        return chatMessageService.getChatMessages(user, userService.getUserByFullName(recipientName));
     }
 
-    @GetMapping("/get-friends")
+    @GetMapping("/get-users")
     public List<User> getFriends(@AuthenticationPrincipal User user) {
         return userService.getAllUsers(user);
     }
@@ -76,7 +77,7 @@ public class ChatController {
     @GetMapping("/read-messages")
     public void readMessages(@AuthenticationPrincipal User user,
                              @RequestParam String recipientName) {
-        chatMessageService.readMessages(user.getUsername(), recipientName);
+        chatMessageService.readMessages(user.getFullName(), recipientName);
     }
 
 }

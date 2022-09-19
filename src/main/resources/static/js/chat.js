@@ -7,12 +7,7 @@ let monthNames = ["January", "February", "March", "April", "May", "June",
 let recipientName = null;
 let currentUserName = null;
 
-let trigger = $('.hamburger'),
-    overlay = $('.overlay'),
-    isClosed = false;
-
-
-function getFriends() {
+function getChats() {
     $.ajax({
         type: "GET",
         url: "/get-chats",
@@ -33,6 +28,7 @@ function getFriends() {
 
 function showChatRooms(room, numOfNewMessages) {
     let tableData = '';
+    let lastMessage = room.chatMessages.slice(-1)[0].content;
     if (numOfNewMessages !== 0) {
         tableData = '<li class="active user-list">' +
             '<div class="d-flex bd-highlight">' +
@@ -41,8 +37,9 @@ function showChatRooms(room, numOfNewMessages) {
             '<span class="online_icon"></span>' +
             '</div>' +
             '<div class="user_info">' +
-            '<span class="username-value">' + room.sender.username + '</span>' +
+            '<span class="username-value">' + room.senderName + '</span>' +
             '<span class="notification" id="notification">' + numOfNewMessages + '</span>' +
+            '<span class="last-message">' + lastMessage + '</span>' +
             '</div>' +
             '</div>' +
             '</li>';
@@ -55,7 +52,8 @@ function showChatRooms(room, numOfNewMessages) {
             '<span class="online_icon"></span>' +
             '</div>' +
             '<div class="user_info">' +
-            '<span class="username-value">' + room.sender.username + '</span>' +
+            '<span class="username-value">' + room.senderName + '</span>' +
+            '<span class="last-message">' + lastMessage + '</span>' +
             '</div>' +
             '</div>' +
             '</li>';
@@ -67,14 +65,10 @@ function connect() {
     let socket = new SockJS('/ws');
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
-        /*stompClient.subscribe('/topic/return-to', function(data){
-            showMessage(JSON.parse(data.body));
-        });*/
 
         stompClient.subscribe('/queue/messages/' + currentUserName, function (message) {
-            console.log("SUBSCRIBE!!!");
             showMessage(JSON.parse(message.body));
-            getFriends();
+            getChats();
         });
     });
 }
@@ -87,35 +81,15 @@ function readMessages() {
         data: {"recipientName": recipientName},
         contentType: 'application/json; charset=utf-8',
         success: function () {
-            console.log("Messages are read");
         }
     });
-    getFriends();
+    getChats();
 }
-
-/*function sendMessage() {
-    let content = $("#content").val();
-   // let recipientName = document.getElementById("recipient").innerHTML;
-    console.log("RecipientName in sendMessage: " + recipientName);
-    $.ajax({
-        type: "GET",
-        url: "/get-current-username",
-        success: function (response) {
-            let message = {'content': content,
-                'senderName': response,
-                'timestamp': new Date(),
-                'recipientName': recipientName};
-            stompClient.send("/app/message", {}, JSON.stringify(message));
-        }
-    });
-    document.getElementById('content').value = '';
-}*/
 
 function sendPrivateMessage() {
     let content = $("#content").val();
     if (content.trim() !== "") {
         recipientName = document.getElementById("chat-with").innerHTML;
-        console.log("RecipientName in sendPrivateMessage: " + recipientName);
         $.ajax({
             type: "GET",
             url: "/get-current-username",
@@ -130,7 +104,6 @@ function sendPrivateMessage() {
                 showMessage(message);
             }
         });
-        getFriends();
         document.getElementById('content').value = '';
     }
 }
@@ -143,16 +116,15 @@ function showMessage(message) {
         url: "/get-current-username",
         success: function (response) {
 
-            if (message.senderName == response) {
+            if (message.senderName === response) {
                 showSendMessages(message, time);
-            } else if (message.senderName == recipientName){
+            } else if (message.senderName === recipientName){
                 showReceivedMessages(message, time);
             }
-            var chatHistory = document.getElementById("messages");
+            let chatHistory = document.getElementById("messages");
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
     });
-    console.log("AFTER SHOWING MESSAGE!!!");
 }
 
 function getUserByName() {
@@ -180,7 +152,7 @@ function getCurrentUserName() {
 }
 
 function showMessagesFromDB(recipientName) {
-    document.getElementById("hide").style.visibility = 'visible';
+    $("#chat-window").show();
     $("#chat-with").html(recipientName);
     $.ajax({
         url: '/get-chat',
@@ -200,7 +172,7 @@ function showMessagesFromDB(recipientName) {
                     showReceivedMessages(message, time);
                 }
             });
-            var chatHistory = document.getElementById("messages");
+            let chatHistory = document.getElementById("messages");
             chatHistory.scrollTop = chatHistory.scrollHeight;
         }
     });
@@ -256,10 +228,10 @@ function showReceivedMessages(message, time) {
     $("#messages").append(msg);
 }
 
-function searchUsers() {
+function searchFriends() {
     var arrayReturn = []
     $.ajax({
-        url: "/get-friends",
+        url: "/get-users",
         dataType: 'json',
         success: function(data) {
             for (var i = 0; i < data.length; i++) {
@@ -283,28 +255,13 @@ function searchUsers() {
     }
 }
 
-function hamburger_cross() {
-
-    if (isClosed === true) {
-        overlay.hide();
-        trigger.removeClass('is-open');
-        trigger.addClass('is-closed');
-        isClosed = false;
-    } else {
-        overlay.show();
-        trigger.removeClass('is-closed');
-        trigger.addClass('is-open');
-        isClosed = true;
-    }
-}
-
 $(document).ready(function(){
-    document.getElementById("hide").style.visibility = 'hidden';
+    $("#chat-window").hide();
     getCurrentUserName();
-    getFriends();
+    getChats();
 
     $("#tags").on('keyup', function() {
-        searchUsers();
+        searchFriends();
     });
 
     $('#action_menu_btn').click(function(){
@@ -313,6 +270,7 @@ $(document).ready(function(){
 
     $("#send").click(function(){
         sendPrivateMessage();
+        getChats();
         return false;
     });
 
@@ -321,29 +279,4 @@ $(document).ready(function(){
         chatDate = null;
         showMessagesFromDB(recipientName);
     });
-
-    trigger.click(function () {
-        hamburger_cross();
-    });
-
-    $('[data-toggle="offcanvas"]').click(function () {
-        $('#wrapper').toggleClass('toggled');
-    });
 });
-
-
-/*
-function sendMessage() {
-    let recipientName = document.getElementById("recipient").innerHTML;
-    let content = $("#content").val();
-    let data = "";
-    console.log(content);
-    $.ajax({
-        type: "POST",
-        url: "/send-message/" + recipientName,
-        data: content,
-        contentType: 'text/plain',
-        success: function (message) {
-        }
-    });
-}*/

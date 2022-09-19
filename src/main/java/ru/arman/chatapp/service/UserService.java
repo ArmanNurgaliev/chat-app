@@ -40,17 +40,15 @@ public class UserService implements UserDetailsService {
 
     public boolean registerUser(UserDto userDto, Map<String, String> exist) {
         boolean emailExists = userRepository.findByEmail(userDto.getEmail()) != null;
-        boolean userExists = userRepository.findByUsername(userDto.getUsername()).isPresent();
-        if (emailExists || userExists) {
-            if (userExists)
-                exist.put("usernameExist", userDto.getUsername());
-            if (emailExists)
-                exist.put("emailExist", userDto.getEmail());
+        if (emailExists) {
+            exist.put("emailExist", userDto.getEmail());
             return false;
         }
 
         User user = new User();
-        user.setUsername(userDto.getUsername());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setFullName(userDto.getFirstName() + " " + userDto.getLastName());
         user.setEmail(userDto.getEmail());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setConfirmPassword(passwordEncoder.encode(userDto.getConfirmPassword()));
@@ -65,8 +63,8 @@ public class UserService implements UserDetailsService {
         return true;
     }
 
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+    public User getUserByFullName(String fullName) {
+        return userRepository.findByFullName(fullName).orElse(null);
     }
 
     public List<User> getAllUsers(User user) {
@@ -83,5 +81,20 @@ public class UserService implements UserDetailsService {
 
     public boolean checkPasswords(ChangePassDto changePassDto, User user) {
         return passwordEncoder.matches(changePassDto.getPassword(), user.getPassword());
+    }
+
+    public User addFriend(String userName, String friendName) {
+        User user = getUserByFullName(userName);
+        User friend = getUserByFullName(friendName);
+        if(!user.getFriends().contains(friend)) {
+            user.getFriends().add(friend);
+            friend.getFriends().add(user);
+            return userRepository.save(user);
+        }
+        return user;
+    }
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

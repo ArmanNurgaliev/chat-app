@@ -10,6 +10,7 @@ import ru.arman.chatapp.model.User;
 import ru.arman.chatapp.repository.ChatMessageRepository;
 import ru.arman.chatapp.repository.ChatRoomRepository;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,21 +36,30 @@ public class ChatMessageService {
     }
 
     public ChatMessage createMessage(MessageDto messageDto) {
-        User recipient = userService.getUserByUsername(messageDto.getRecipientName());
-        User sender = userService.getUserByUsername(messageDto.getSenderName());
-        ChatRoom chatRoom = chatRoomService.getChatRoom(sender, recipient);
+        User recipient = userService.getUserByFullName(messageDto.getRecipientName());
+        User sender = userService.getUserByFullName(messageDto.getSenderName());
+        ChatRoom chatRoomSender = chatRoomService.getChatRoom(sender, recipient);
+        ChatRoom chatRoomRecipient = chatRoomService.getChatRoom(recipient, sender);
+
+        List<ChatRoom> chats = new ArrayList<>();
+        chats.add(chatRoomSender);
+        chats.add(chatRoomRecipient);
 
         ChatMessage chatMessage = ChatMessage.builder()
                 .senderName(messageDto.getSenderName())
                 .recipientName(messageDto.getRecipientName())
                 .content(messageDto.getContent())
-                .chatRoom(chatRoom)
+              //  .chatRooms(chats)
                 .timestamp(messageDto.getTimestamp())
                 .status(MessageStatus.DELIVERED)
                 .build();
+        chatMessage.addRooms(chats);
 
-        chatRoom.setLastUpdate(messageDto.getTimestamp());
-        chatRoomRepository.save(chatRoom);
+        chatRoomSender.setLastUpdate(messageDto.getTimestamp());
+        chatRoomRecipient.setLastUpdate(messageDto.getTimestamp());
+
+       /* chatRoomRepository.save(chatRoomSender);
+        chatRoomRepository.save(chatRoomRecipient);*/
 
         return chatMessageRepository.save(chatMessage);
     }
@@ -65,8 +75,8 @@ public class ChatMessageService {
     }
 
     public List<ChatMessage> getChatMessages(User sender, User recipient) {
-        return Stream.concat(chatMessageRepository.findAllBySenderNameAndRecipientName(sender.getUsername(), recipient.getUsername()).stream(),
-                        chatMessageRepository.findAllBySenderNameAndRecipientName(recipient.getUsername(), sender.getUsername()).stream())
+        return Stream.concat(chatMessageRepository.findAllBySenderNameAndRecipientName(sender.getFullName(), recipient.getFullName()).stream(),
+                        chatMessageRepository.findAllBySenderNameAndRecipientName(recipient.getFullName(), sender.getFullName()).stream())
                 .sorted(Comparator.comparing(ChatMessage::getTimestamp))
                 .collect(Collectors.toList());
     }

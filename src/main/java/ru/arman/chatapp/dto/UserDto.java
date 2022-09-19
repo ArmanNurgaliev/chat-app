@@ -12,9 +12,12 @@ import javax.validation.constraints.Size;
 @Getter
 @Setter
 public class UserDto {
-    @NotBlank(message = "Username cannot be empty")
+    @NotBlank(message = "FirstName cannot be empty")
     @Size(min=2, max=50)
-    private String username;
+    private String firstName;
+    @NotBlank(message = "LastName cannot be empty")
+    @Size(min=2, max=50)
+    private String lastName;
     @NotBlank(message = "Email can not be empty")
     @Email(message = "Please provide a valid email")
     private String email;

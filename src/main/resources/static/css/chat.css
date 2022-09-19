@@ -141,10 +141,7 @@ body,html{
 .user_info_top {
     margin: auto 15px;
 }
-.user_info span{
-    font-size: 20px;
-    color: white;
-}
+
 .user_info p{
     font-size: 10px;
     color: rgba(255,255,255,0.6);
@@ -329,7 +326,17 @@ li.ui-state-focus{
 }
 
 .username-value {
+    font-size: 20px;
+    color: white;
     float: left;
+    clear: left;
+}
+
+.last-message {
+    float: left;
+    font-size: 14px;
+    color: lightgray;
+    clear: left;
 }
 
 .notification {

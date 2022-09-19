@@ -25,20 +25,20 @@ public class ChatRoomService {
     }
 
     public ChatRoom getChatRoom(User sender, User recipient) {
-        ChatRoom chatRoom = chatRoomRepository.findBySenderAndRecipient(recipient, sender);
+        ChatRoom chatRoom = chatRoomRepository.findBySenderNameAndRecipientName(recipient.getFullName(), sender.getFullName());
         if (chatRoom == null ) {
             ChatRoom chatRoomSender =
                     ChatRoom.builder()
-                            .sender(sender)
-                            .recipient(recipient)
+                            .senderName(sender.getFullName())
+                            .recipientName(recipient.getFullName())
                             .chatMessages(new ArrayList<>())
                             .lastUpdate(new Date())
                             .build();
 
             ChatRoom chatRoomRecipient =
                     ChatRoom.builder()
-                            .sender(recipient)
-                            .recipient(sender)
+                            .senderName(recipient.getFullName())
+                            .recipientName(sender.getFullName())
                             .chatMessages(new ArrayList<>())
                             .lastUpdate(new Date())
                             .build();
@@ -50,7 +50,7 @@ public class ChatRoomService {
     }
 
     public List<ChatRoom> getChatRooms(User user) {
-        return chatRoomRepository.findAllByRecipient(user).stream()
+        return chatRoomRepository.findAllByRecipientName(user.getFullName()).stream()
                 .sorted(Comparator.comparing(ChatRoom::getLastUpdate).reversed())
                 .collect(Collectors.toList());
     }

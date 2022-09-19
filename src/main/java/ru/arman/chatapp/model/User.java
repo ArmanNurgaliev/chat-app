@@ -1,10 +1,7 @@
 package ru.arman.chatapp.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,13 +16,16 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(exclude = "friends")
 @Table(name = "users")
 public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    private String username;
+    private String firstName;
+    private String lastName;
+    private String fullName;
     private String email;
     @ToString.Exclude
     private String password;
@@ -46,6 +46,16 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    @JsonIgnoreProperties("friends")
+    @ToString.Exclude
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "friendship",
+            joinColumns = @JoinColumn(name = "user_id",
+                    referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "friend_id",
+                    referencedColumnName = "id"))
+    private Set<User> friends;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -64,7 +74,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return fullName;
     }
 
     @Override

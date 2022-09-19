@@ -24,10 +24,15 @@
                             <form action="#" method="post" th:action="@{/register}" th:object="${userDto}">
 
                                 <div class="form-outline mb-4">
-                                    <p style="color:red" th:if="${usernameExist != null}" th:text="${usernameExist}"></p>
-                                    <p style="color:red" th:each="err : ${#fields.errors('username')}" th:text="${err}">Username errors</p>
-                                    <input type="text" id="username" th:value="*{username}" name="username" class="form-control form-control-lg" />
-                                    <label class="form-label" for="username">Your Name</label>
+                                    <p style="color:red" th:each="err : ${#fields.errors('firstName')}" th:text="${err}">FirstName errors</p>
+                                    <input type="text" id="firstName" th:value="*{firstName}" name="firstName" class="form-control form-control-lg" />
+                                    <label class="form-label" for="firstName">Your Name</label>
+                                </div>
+
+                                <div class="form-outline mb-4">
+                                    <p style="color:red" th:each="err : ${#fields.errors('lastName')}" th:text="${err}">LastName errors</p>
+                                    <input type="text" id="lastName" th:value="*{lastName}" name="lastName" class="form-control form-control-lg" />
+                                    <label class="form-label" for="lastName">Your Second Name</label>
                                 </div>
 
                                 <div class="form-outline mb-4">

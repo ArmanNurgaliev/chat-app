@@ -1,5 +1,6 @@
 package ru.arman.chatapp.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,19 +20,24 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long chat_id;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
+/*    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "sender_id",
             referencedColumnName = "id")
+    @JsonIgnoreProperties("sender")
     private User sender;
 
     @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(
             name = "recipient_id",
             referencedColumnName = "id")
-    private User recipient;
+    @JsonIgnoreProperties("recipient")
+    private User recipient;*/
 
-    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
+    private String senderName;
+    private String recipientName;
+
+    @ManyToMany(mappedBy = "chatRooms", fetch = FetchType.EAGER)
     private List<ChatMessage> chatMessages;
 
     private Date lastUpdate;
